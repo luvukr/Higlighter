@@ -107,6 +107,10 @@ namespace FindApplicationUIElementsDesktopApp
         [DllImport("user32.dll")]
         private  static extern int GetMessage(out ProcStructs.MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin,uint wMsgFilterMax);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+
         public ProcStructs.WINDOWINFO GetWindowInfo1(IntPtr hWnd)
         {
             ProcStructs.WINDOWINFO wInfo = new ProcStructs.WINDOWINFO();
@@ -163,6 +167,12 @@ namespace FindApplicationUIElementsDesktopApp
                 }
             }
             return null;
+        }
+
+        public uint GetGUIThreadId(IntPtr hWnd)
+        {
+            uint threadID = GetWindowThreadProcessId(hWnd, IntPtr.Zero);
+            return threadID;
         }
     }
 }

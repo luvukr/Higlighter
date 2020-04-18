@@ -14,9 +14,10 @@ namespace FindApplicationUIElementsDesktopApp
 {
     static class Program
     {
-        static Queue<ScreenBoundingRectangle> shownRectangles = new Queue<ScreenBoundingRectangle>();
-        static readonly object _object = new object();
+        public static Queue<System.Windows.Point> toBeActed = new Queue<System.Windows.Point>();
 
+        public static Queue<ScreenBoundingRectangle> shownRectangles = new Queue<ScreenBoundingRectangle>();
+        public static System.Windows.Rect prev = new System.Windows.Rect();
         //public static Client c = new Client();
         /// <summary>
         /// The main entry point for the application.
@@ -24,7 +25,10 @@ namespace FindApplicationUIElementsDesktopApp
         [STAThread]
         static void Main()
         {
+            
             Console.WriteLine("Application Started");
+
+
             Application.ApplicationExit += new EventHandler(OnApplicationExit);
 
             /*Installing Hooks*/
@@ -34,11 +38,20 @@ namespace FindApplicationUIElementsDesktopApp
             /*Installing WindowEventHooks*/
             WindowEventHooks.UnInstallWindowEventHooks();
             WindowEventHooks.InstallWindowsEventHooks();
+            Task movemnetTask = Task.Factory.StartNew(() =>
+            {
+
+
+                Hooks.OnMouseMovement += new MouseEventHandler(OnMouseMovement);
+            });
+
+            Task startProcessingMovedPoint = Task.Factory.StartNew(() =>
+            {
+                ProcessMovedEvents();
+            });
 
             Hooks.OnMouseActivity += new MouseEventHandler(OnMouseLeftClick);
-           // Hooks.OnMouseMovement += new MouseEventHandler(OnMouseMovement);
-
-            WinAPIs.InitUiTreeWalk();
+            //WinAPIs.InitUiTreeWalk();
             //c.StartClient();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -115,7 +128,7 @@ namespace FindApplicationUIElementsDesktopApp
                 };
                 new CRUD().Add(t1);
                 #endregion
-                Console.WriteLine("RawXPath is : " + preparedXml);
+                //Console.WriteLine("RawXPath is : " + preparedXml);
             });
             resolveData.Wait();
 
@@ -129,38 +142,124 @@ namespace FindApplicationUIElementsDesktopApp
         {
 
 
-            Task resolveData = Task.Factory.StartNew(() =>
-            {
+            System.Windows.Point point = new System.Windows.Point(m.X, m.Y);
+            //if (IsPointInsideRectangle(prev, point))
+            //    return;
+            //else
+                toBeActed.Enqueue(point);
+            #region earlier code to highlight
+            //TreeWalker t = TreeWalker.RawViewWalker;
+
+            //    try
+            //    {
+            //        AutomationElement el = AutomationElement.FromPoint(point);
+            //        var setPrevEleTask = Task.Factory.StartNew(() =>
+            //        {
+            //            if (el.FindFirst(TreeScope.Children, Condition.TrueCondition) == null)
+            //            {
+            //                try
+            //                {
+            //                    object boundingRectNoDefault = el.GetCurrentPropertyValue(AutomationElement.BoundingRectangleProperty, true);
+            //                    if (boundingRectNoDefault != AutomationElement.NotSupported)
+            //                    {
+            //                        prev = (System.Windows.Rect)boundingRectNoDefault;
+            //                    }
+            //                }
+            //                catch (Exception)
+            //                {
+
+            //                }
+
+            //            }
+            //        });
+
+            //        new Utility().SetVisibility(true, el);
+
+            //        setPrevEleTask.Wait();
+            //    }
+            //    catch (Exception)
+            //    {
+
+            //    }
+
+            #endregion
 
 
-                System.Windows.Point point = new System.Windows.Point(m.X, m.Y);
-                AutomationElement el = AutomationElement.FromPoint(point);
-                SetVisibility(true, el);
 
-            });
-            resolveData.Wait();
+
+            //});
+            //resolveData.Wait();
+
+        }
+        public static bool IsPointInsideRectangle(System.Windows.Rect r, System.Windows.Point p)
+        {
+
+
+            if (r.Contains(p))
+                return true;
+            else
+                return false;
 
         }
 
 
-
-        public static void SetVisibility(bool show, AutomationElement element)
+        public static void ProcessMovedEvents()
         {
-            lock (_object)
+            while (true)
             {
+                try
+                {
+                    if (toBeActed.Count > 0)
+                    {
+                        var p = toBeActed.Dequeue();
+                        TreeWalker t = TreeWalker.RawViewWalker;
 
+                        try
+                        {
+                            AutomationElement el = AutomationElement.FromPoint(p);
+                            //Console.WriteLine("X=  " + p.X + "   Y =   " + p.Y + "       " + el.Current.ClassName + "               " + el.Current.ControlType.ProgrammaticName);
+                            var setPrevEleTask = Task.Factory.StartNew(() =>
+                            {
+                                if (el.FindFirst(TreeScope.Children, Condition.TrueCondition) == null)
+                                {
+                                    try
+                                    {
+                                        object boundingRectNoDefault = el.GetCurrentPropertyValue(AutomationElement.BoundingRectangleProperty, true);
+                                        if (boundingRectNoDefault != AutomationElement.NotSupported)
+                                        {
+                                            prev = (System.Windows.Rect)boundingRectNoDefault;
+                                        }
+                                    }
+                                    catch (Exception)
+                                    {
 
-                if (shownRectangles.Count > 0)
-                    shownRectangles.Dequeue().Dispose();
-                ScreenBoundingRectangle _rectangle = new ScreenBoundingRectangle();
-                _rectangle.Color = Color.Red;
-                _rectangle.Opacity = 0.8;
-                _rectangle.Location = new Rectangle(Convert.ToInt32(element.Current.BoundingRectangle.X), Convert.ToInt32(element.Current.BoundingRectangle.Y), Convert.ToInt32(element.Current.BoundingRectangle.Width), Convert.ToInt32(element.Current.BoundingRectangle.Height));
-                _rectangle.ToolTipText = "hello";
-                _rectangle.Visible = show;
-                shownRectangles.Enqueue(_rectangle);
+                                    }
+
+                                }
+                            });
+
+                            new Utility().SetVisibility(true, el);
+
+                            setPrevEleTask.Wait();
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                        toBeActed.Clear();
+
+                    }
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+                
             }
         }
+
+
 
     }
 }

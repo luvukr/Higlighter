@@ -145,6 +145,18 @@ namespace FindApplicationUIElementsDesktopApp
         {
             ProcStructs.MouseLLHookStruct mouseLLHookStruct = (ProcStructs.MouseLLHookStruct)Marshal.PtrToStructure(LPARAM, typeof(ProcStructs.MouseLLHookStruct));
             MouseButtons button = MouseButtons.None;
+            int callRes = (int)WinAPIs.CallNextHookEx(RunningDLLInstance, nCode, wParam, LPARAM);
+
+            #region junk
+            //// var clickedWinText = new WinAPIs().GetWindowText(Program.targetWinHandle);
+            // var clickedWinHandle = WinAPIs.WindowFromPoint(mouseLLHookStruct.pt);
+            // //if (!clickedWinText.ToLower().Contains(Program.targetAppName.ToLower()))
+            // //    return callRes;
+            // if (Program.targetWinHandle!=clickedWinHandle)
+            //     return callRes;
+
+            // Console.WriteLine("Api response is :" +(int)clickedWinHandle + "    Targetapplication is :" + (int)Program.targetWinHandle);
+            #endregion
             switch (wParam.ToInt32())
             {
                 case Constants.MouseEvents.WM_MOUSEMOVE:
@@ -157,7 +169,7 @@ namespace FindApplicationUIElementsDesktopApp
                                                                       mouseLLHookStruct.pt.Y,
                                                                       0);
                     OnMouseMovement(null, e2);
-                    break;
+                    return callRes;
 
                 //case WM_MOUSEWHEEL:
                 //    short zDelta = (short)(mhs.mouseData >> 16);
@@ -192,9 +204,18 @@ namespace FindApplicationUIElementsDesktopApp
 
                     OnMouseActivity(null, e1);
                     return -1;
+                case Constants.MouseEvents.WM_RBUTTONUP:
+                    
+                    return -1;
+
+                case Constants.MouseEvents.WM_LBUTTONUP:
+                    
+                    return -1;
                     
             }
-            return (int)WinAPIs.CallNextHookEx(RunningDLLInstance, nCode, wParam, LPARAM);
+            return callRes;
+            //return (int)WinAPIs.CallNextHookEx(RunningDLLInstance, nCode, wParam, LPARAM);
+            
         }
 
 

@@ -81,6 +81,7 @@
     <Compile Include="screenboundingrectangle.cs" />
     <Compile Include="screenrectangle.cs" />
     <Compile Include="UIELementActivity.cs" />
+    <Compile Include="Utility.cs" />
     <Compile Include="WinAPIs.cs" />
     <Compile Include="WindowEventHooks.cs" />
     <Compile Include="Constants.cs" />
