@@ -121,12 +121,14 @@ namespace FindApplicationUIElementsDesktopApp
                 preparedXml = GenerateXPath.GetUITaskList(el);
                 TrackedAction t1 = new TrackedAction
                 {
+                    Id = Guid.NewGuid(),
                     CreatedAt = DateTime.Now,
                     IdentificationDetail = preparedXml,
                     ApplicationPath = processExecutablePath,
                     ProcessName = processName
+                    
                 };
-                new CRUD().Add(t1);
+                new CSVHelper().WriteRecord(t1);
                 #endregion
                 //Console.WriteLine("RawXPath is : " + preparedXml);
             });
@@ -218,29 +220,29 @@ namespace FindApplicationUIElementsDesktopApp
                         {
                             AutomationElement el = AutomationElement.FromPoint(p);
                             //Console.WriteLine("X=  " + p.X + "   Y =   " + p.Y + "       " + el.Current.ClassName + "               " + el.Current.ControlType.ProgrammaticName);
-                            var setPrevEleTask = Task.Factory.StartNew(() =>
-                            {
-                                if (el.FindFirst(TreeScope.Children, Condition.TrueCondition) == null)
-                                {
-                                    try
-                                    {
-                                        object boundingRectNoDefault = el.GetCurrentPropertyValue(AutomationElement.BoundingRectangleProperty, true);
-                                        if (boundingRectNoDefault != AutomationElement.NotSupported)
-                                        {
-                                            prev = (System.Windows.Rect)boundingRectNoDefault;
-                                        }
-                                    }
-                                    catch (Exception)
-                                    {
+                            //var setPrevEleTask = Task.Factory.StartNew(() =>
+                            //{
+                            //    if (el.FindFirst(TreeScope.Children, Condition.TrueCondition) == null)
+                            //    {
+                            //        try
+                            //        {
+                            //            object boundingRectNoDefault = el.GetCurrentPropertyValue(AutomationElement.BoundingRectangleProperty, true);
+                            //            if (boundingRectNoDefault != AutomationElement.NotSupported)
+                            //            {
+                            //                prev = (System.Windows.Rect)boundingRectNoDefault;
+                            //            }
+                            //        }
+                            //        catch (Exception)
+                            //        {
 
-                                    }
+                            //        }
 
-                                }
-                            });
+                            //    }
+                            //});
 
                             new Utility().SetVisibility(true, el);
 
-                            setPrevEleTask.Wait();
+                            //setPrevEleTask.Wait();
                         }
                         catch (Exception)
                         {

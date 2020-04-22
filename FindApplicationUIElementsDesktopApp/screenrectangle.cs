@@ -53,11 +53,8 @@ namespace FindApplicationUIElementsDesktopApp
             _form.Show();
             _form.Hide();
             _form.Opacity = 0.2;
+            _form.Enabled = false;
             
-            //set popup style
-            int num1 = WinAPIs.GetWindowLong(_form.Handle, -20);
-            WinAPIs.SetWindowLong(_form.Handle, -20, num1 | 0x80);
-
             this._color = Color.Black;
         }
 

@@ -6,14 +6,13 @@ namespace Logic
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Data.Entity.Spatial;
 
-    [Table("TrackedAction")]
+    //[Table("TrackedAction")]
     public partial class TrackedAction
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         public string IdentificationDetail { get; set; }
-
         public bool HasBeenActedUpon { get; set; }
 
         [Column(TypeName = "datetime2")]

@@ -437,7 +437,7 @@ namespace FindApplicationUIElementsDesktopApp
 
                 for (int i = nodes.Count - 1; i >= 0; i--)
                 {
-                    result += nodes[i] + Environment.NewLine;
+                    result += nodes[i];
                 }
                 result += "</UiTask>";
                 return result;
